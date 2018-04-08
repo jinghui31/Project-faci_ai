@@ -1,4 +1,4 @@
-from sklearn.externals import joblib
+import joblib
 from os import listdir
 from os.path import join
 from PIL import Image
