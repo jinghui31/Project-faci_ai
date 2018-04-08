@@ -53,9 +53,9 @@ for z in files:
     
     rightCheek = ( width / 3 * 2, height / 2, width / 6 * 5, height / 3 * 2)
     cropped_img2 = img.crop(rightCheek)
-    #預留圖片
+    #Reserved picture
     toImage = Image.new('RGB', (100, 50))
-    #將兩張圖片貼上
+    #Paste two pictures
     toImage.paste(cropped_img, (0, 0))
     toImage.paste(cropped_img2, (50, 0))
     toImage.save(file_path4)
