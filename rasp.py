@@ -1,12 +1,12 @@
-import joblib
 from os import listdir
 from os.path import join
 from PIL import Image
 from time import strftime
 import imutils
 import cv2
+import pickle
 import base64
-import rethinkdb as r
+from pymongo import MongoClient
 
 path1 = "raw"
 path2 = "resize"
@@ -83,12 +83,12 @@ def extract_color_histogram(image, bins = (8, 8, 8)):
     # return the flattened histogram as the feature vector
     return hist.flatten()
 
-model_1 = joblib.load('20180408_final_knn_hsv_schannel.pkl')
+model_1 = pickle.load(open('20180408_final_knn_hsv_schannel.pkl', 'rb'))
 image_1 = cv2.imread('schannel/raspberry.jpg')
 hist = extract_color_histogram(image_1)
 result_1 = model_1.predict(hist.reshape(1, -1))[0]
 
-model_2 = joblib.load('20180408_final_knn_rgb_cheek.pkl')
+model_2 = pickle.load(open('20180408_final_knn_rgb_cheek.pkl', 'rb'))
 image_2 = cv2.imread('acne/raspberry.jpg')
 pixels = image_to_feature_vector(image_2)
 result_2 = model_2.predict(pixels.reshape(1, -1))[0]
@@ -108,17 +108,7 @@ data['model'] = dict[result_1][result_2]
 data['timestamp'] = strftime('%Y%m%d_%H%M%S')
 data['z_img'] = image_64_encode.decode('utf-8')
 
-conn = r.connect(host = '35.196.140.167', port = 28015)
-try:
-    r.db_create('faceai').run(conn)
-except:
-    pass
-
-conn.use('faceai')
-
-try:
-    r.table_create('project', primary_key = "id").run(conn)
-except:
-    pass
-
-r.db('faceai').table('project').filter({'id': '916bcc4a-85a4-4cac-93b7-a00f9505f073'}).update(data).run(conn)
+client = MongoClient("mongodb://35.196.140.167:27017")
+db = client.faceai
+collect = db.project
+collect.update({'_id':"5aca93ea1d41c80e41247a97"}, data, upsert = False)
