@@ -2,9 +2,9 @@ from os import listdir
 from os.path import join
 from PIL import Image
 from time import strftime
+import pickle
 import imutils
 import cv2
-import pickle
 import base64
 from pymongo import MongoClient
 
@@ -83,12 +83,12 @@ def extract_color_histogram(image, bins = (8, 8, 8)):
     # return the flattened histogram as the feature vector
     return hist.flatten()
 
-model_1 = pickle.load(open('20180408_final_knn_hsv_schannel.pkl', 'rb'))
+model_1 = pickle.load(open("20180408_final_knn_hsv_schannel.pkl", "rb"))
 image_1 = cv2.imread('schannel/raspberry.jpg')
 hist = extract_color_histogram(image_1)
 result_1 = model_1.predict(hist.reshape(1, -1))[0]
 
-model_2 = pickle.load(open('20180408_final_knn_rgb_cheek.pkl', 'rb'))
+model_2 = pickle.load(open("20180408_final_knn_rgb_cheek.pkl", "rb"))
 image_2 = cv2.imread('acne/raspberry.jpg')
 pixels = image_to_feature_vector(image_2)
 result_2 = model_2.predict(pixels.reshape(1, -1))[0]
